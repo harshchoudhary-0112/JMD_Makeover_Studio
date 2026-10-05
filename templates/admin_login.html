@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <p>Authorized access only</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="form-container">
+            <h2>Admin Login</h2>
+            <p class="form-subtitle">Enter admin credentials to manage the studio</p>
+
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="form-group">
+                    <label for="email">Admin Email</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="admin@jmd.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login as Admin</button>
+            </form>
+
+            <div class="form-footer">
+                <a href="{{ url_for('home') }}">← Back to website</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

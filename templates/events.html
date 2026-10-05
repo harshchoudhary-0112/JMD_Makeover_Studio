@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Events - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Upcoming Events</h1>
+        <p>Workshops, masterclasses, and special events at JMD Studio</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if events %}
+        <div class="card-grid card-grid-3">
+            {% for event in events %}
+            <div class="card">
+                <div class="card-image">
+                    {% if event.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + event.image) }}" alt="{{ event.title }}">
+                    {% else %}
+                    <span class="placeholder-icon">✨</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3><a href="{{ url_for('event_detail', id=event.id) }}" style="color: var(--black);">{{ event.title }}</a></h3>
+                    <p>{{ event.description[:120] }}{% if event.description and event.description|length > 120 %}...{% endif %}</p>
+                    <div class="card-meta" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <span>📅 {{ event.event_date }} — {{ event.event_time }}</span>
+                        <span>📍 {{ event.venue }}</span>
+                        {% if event.fees > 0 %}
+                        <span class="price">₹{{ "%.0f"|format(event.fees) }}</span>
+                        {% else %}
+                        <span class="price" style="color: var(--success);">FREE</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('event_detail', id=event.id) }}" class="btn btn-outline btn-sm">View Details</a>
+                        {% if current_user %}
+                        <form action="{{ url_for('register_event', id=event.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-primary btn-sm">Register</button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">Login to Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">✨</div>
+            <p>No upcoming events right now. Check back soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

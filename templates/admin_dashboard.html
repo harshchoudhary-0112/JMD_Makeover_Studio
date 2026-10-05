@@ -1,0 +1,138 @@
+{% extends 'admin_base.html' %}
+{% block title %}Admin Dashboard - JMD Makeover Studio{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Dashboard</h1>
+    <a href="{{ url_for('schedule_appointment') }}" class="btn btn-primary btn-sm">+ Schedule Appointment</a>
+</div>
+
+<!-- Stats Grid -->
+<div class="admin-stats">
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon pink">👥</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.total_users }}</h3>
+            <p>Registered Users</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon gold">📅</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.total_appointments }}</h3>
+            <p>Total Appointments</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon pink">⏳</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.pending_appointments }}</h3>
+            <p>Pending Approval</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon green">✅</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.approved_appointments }}</h3>
+            <p>Approved</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon blue">🎉</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.completed_appointments }}</h3>
+            <p>Completed</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon pink">💄</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.total_services }}</h3>
+            <p>Services</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon gold">🎓</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.total_courses }}</h3>
+            <p>Courses</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon green">🏷️</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.total_offers }}</h3>
+            <p>Active Offers</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Appointments -->
+<div class="admin-panel">
+    <div class="admin-panel-header">
+        <h3>Recent Appointments</h3>
+        <a href="{{ url_for('manage_appointments') }}" class="btn btn-sm btn-outline">View All</a>
+    </div>
+    <div class="admin-panel-body" style="padding: 0;">
+        {% if recent_appointments %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Service</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appt in recent_appointments %}
+                    <tr>
+                        <td>{{ appt.id }}</td>
+                        <td>{{ appt.name }}</td>
+                        <td>{{ appt.service_name or '—' }}</td>
+                        <td>{{ appt.appointment_date }}</td>
+                        <td>{{ appt.appointment_time }}</td>
+                        <td>{{ appt.phone }}</td>
+                        <td><span class="badge badge-{{ appt.status|lower }}">{{ appt.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No appointments yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="admin-stats" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon blue">📋</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.course_registrations }}</h3>
+            <p>Course Registrations</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon gold">🏷️</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.offer_registrations }}</h3>
+            <p>Offer Registrations</p>
+        </div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-icon pink">📸</div>
+        <div class="admin-stat-info">
+            <h3>{{ stats.gallery_images }}</h3>
+            <p>Gallery Images</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

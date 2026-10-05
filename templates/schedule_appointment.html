@@ -1,0 +1,56 @@
+{% extends 'admin_base.html' %}
+{% block title %}Schedule Appointment - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Schedule Appointment</h1>
+</div>
+
+<div class="admin-panel">
+    <div class="admin-panel-header">
+        <h3>Create Walk-in / Phone Appointment</h3>
+    </div>
+    <div class="admin-panel-body">
+        <form method="POST" action="{{ url_for('schedule_appointment') }}" style="max-width: 600px;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Client Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Client's name" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email (Optional)</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="client@email.com">
+            </div>
+            <div class="form-group">
+                <label for="service_id">Service</label>
+                <select id="service_id" name="service_id" class="form-control">
+                    <option value="">— Select Service —</option>
+                    {% for service in services %}
+                    <option value="{{ service.id }}">{{ service.name }} — ₹{{ "%.0f"|format(service.price) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="appointment_date">Date *</label>
+                    <input type="date" id="appointment_date" name="appointment_date" class="form-control" min="{{ today }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="appointment_time">Time *</label>
+                    <input type="time" id="appointment_time" name="appointment_time" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="message">Notes (Optional)</label>
+                <textarea id="message" name="message" class="form-control" placeholder="Any additional notes..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

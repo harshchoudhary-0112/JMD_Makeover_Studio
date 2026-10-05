@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JMD Makeover Studio & Academy - Premium beauty, makeup, hair styling services and professional courses.">
+    <title>{% block title %}JMD Makeover Studio & Academy{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="{{ url_for('home') }}" class="nav-brand">
+                <span class="logo-text">JMD <span>Studio</span></span>
+            </a>
+
+            <ul class="nav-links" id="nav-links">
+                <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('services') }}" class="{% if request.endpoint == 'services' %}active{% endif %}">Services</a></li>
+                <li><a href="{{ url_for('academy') }}" class="{% if request.endpoint == 'academy' %}active{% endif %}">Academy</a></li>
+                <li><a href="{{ url_for('offers') }}" class="{% if request.endpoint == 'offers' %}active{% endif %}">Offers</a></li>
+                <li><a href="{{ url_for('events') }}" class="{% if request.endpoint in ['events', 'event_detail'] %}active{% endif %}">Events</a></li>
+                <li><a href="{{ url_for('gallery') }}" class="{% if request.endpoint == 'gallery' %}active{% endif %}">Gallery</a></li>
+                <li><a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}active{% endif %}">Contact</a></li>
+            </ul>
+
+            <div class="nav-auth" id="nav-auth">
+                {% if current_user %}
+                    <a href="{{ url_for('user_dashboard') }}" class="btn-nav btn-nav-outline">Dashboard</a>
+                    <a href="{{ url_for('logout') }}" class="btn-nav btn-nav-solid">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn-nav btn-nav-outline">Login</a>
+                    <a href="{{ url_for('signup') }}" class="btn-nav btn-nav-solid">Sign Up</a>
+                {% endif %}
+            </div>
+
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>JMD <span>Studio</span></h3>
+                    <p>{{ site.get('about_text', 'Premium makeover studio and academy.') }}</p>
+                    {% if site.get('instagram') or site.get('facebook') or site.get('youtube') %}
+                    <div style="margin-top: 12px; display: flex; gap: 12px;">
+                        {% if site.get('instagram') %}<a href="{{ site.instagram }}" target="_blank" style="color: var(--rose-gold); font-size: 1.2rem;">📷</a>{% endif %}
+                        {% if site.get('facebook') %}<a href="{{ site.facebook }}" target="_blank" style="color: var(--rose-gold); font-size: 1.2rem;">📘</a>{% endif %}
+                        {% if site.get('youtube') %}<a href="{{ site.youtube }}" target="_blank" style="color: var(--rose-gold); font-size: 1.2rem;">▶️</a>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('home') }}">Home</a></li>
+                        <li><a href="{{ url_for('services') }}">Services</a></li>
+                        <li><a href="{{ url_for('academy') }}">Academy</a></li>
+                        <li><a href="{{ url_for('offers') }}">Offers</a></li>
+                        <li><a href="{{ url_for('events') }}">Events</a></li>
+                        <li><a href="{{ url_for('gallery') }}">Gallery</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Account</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('login') }}">Login</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                        <li><a href="{{ url_for('book_appointment') }}">Book Appointment</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p>📍 {{ site.get('address', 'JMD Makeover Studio') }}</p>
+                    <p>📞 {{ site.get('phone', '+91 98765 43210') }}</p>
+                    <p>✉️ {{ site.get('email', 'info@jmdstudio.com') }}</p>
+                    <p>🕐 {{ site.get('working_hours', 'Mon-Sat: 10AM - 8PM') }}</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 {{ site.get('studio_name', 'JMD Makeover Studio & Academy') }}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

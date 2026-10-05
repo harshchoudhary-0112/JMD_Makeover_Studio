@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Academy - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Our Academy</h1>
+        <p>Professional beauty courses to launch your career in the beauty industry</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if courses %}
+        <div class="card-grid">
+            {% for course in courses %}
+            <div class="card">
+                <div class="card-image">
+                    {% if course.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + course.image) }}" alt="{{ course.title }}">
+                    {% else %}
+                    <span class="placeholder-icon">🎓</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3><a href="{{ url_for('course_detail', id=course.id) }}" style="color: var(--black);">{{ course.title }}</a></h3>
+                    <p>{{ course.description }}</p>
+                    <div class="card-meta">
+                        <span class="price">₹{{ "%.0f"|format(course.fees) }}</span>
+                        <span>🕐 {{ course.duration }}</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('course_detail', id=course.id) }}" class="btn btn-outline btn-sm">View Details</a>
+                        {% if current_user %}
+                        <form action="{{ url_for('register_course', id=course.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-primary btn-sm">Register Now</button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">Login to Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🎓</div>
+            <p>Courses will be available soon. Stay tuned!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

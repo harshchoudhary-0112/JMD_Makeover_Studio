@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Profile - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>My Profile</h1>
+        <p>Update your personal information</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="form-container" style="max-width: 520px;">
+            <h2>Edit Profile</h2>
+            <p class="form-subtitle">Update your name, phone, or password</p>
+
+            <form method="POST" action="{{ url_for('profile') }}">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email (cannot be changed)</label>
+                    <input type="email" id="email" class="form-control" value="{{ user.email }}" disabled style="opacity: 0.6;">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" value="{{ user.phone }}" required>
+                </div>
+
+                <div class="form-divider">Change Password (Optional)</div>
+
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Enter current password">
+                </div>
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Minimum 6 characters" minlength="6">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+            </form>
+
+            <div class="form-footer">
+                <a href="{{ url_for('user_dashboard') }}">← Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

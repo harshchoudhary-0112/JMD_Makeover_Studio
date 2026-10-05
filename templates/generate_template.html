@@ -1,0 +1,220 @@
+{% extends 'admin_base.html' %}
+{% block title %}AI Template Generator - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>🤖 AI Template Generator</h1>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
+    <!-- Generator Form -->
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <h3>Create Promotional Template</h3>
+        </div>
+        <div class="admin-panel-body">
+            <form method="POST" action="{{ url_for('generate_template') }}" id="template-form">
+
+                <!-- Quick Fill from existing data -->
+                <div class="form-group">
+                    <label>⚡ Quick Fill (Optional)</label>
+                    <select id="quick-fill" class="form-control" onchange="quickFill(this.value)">
+                        <option value="">— Start from scratch —</option>
+                        <optgroup label="🎉 Offers">
+                            {% for offer in offers %}
+                            <option value="offer-{{ offer.id }}" 
+                                data-type="offer"
+                                data-title="{{ offer.title }}" 
+                                data-desc="{{ offer.description }}"
+                                data-highlight="{{ offer.discount }}"
+                                data-date="{{ offer.start_date }} to {{ offer.end_date }}"
+                                data-link="{{ url_for('offer_detail', id=offer.id, _external=True) }}">
+                                {{ offer.title }}
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="🎓 Courses">
+                            {% for course in courses %}
+                            <option value="course-{{ course.id }}" 
+                                data-type="course"
+                                data-title="{{ course.title }}" 
+                                data-desc="{{ course.description }}"
+                                data-highlight="₹{{ '%.0f'|format(course.fees) }}"
+                                data-date="Duration: {{ course.duration }}"
+                                data-link="{{ url_for('course_detail', id=course.id, _external=True) }}">
+                                {{ course.title }}
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 20px 0;">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Template Type</label>
+                        <select name="template_type" id="template_type" class="form-control">
+                            <option value="offer">🎉 Offer</option>
+                            <option value="course">🎓 Course / Class</option>
+                            <option value="event">✨ Event</option>
+                            <option value="service">💄 Service</option>
+                            <option value="announcement">📢 Announcement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Design Style</label>
+                        <select name="style" class="form-control">
+                            <option value="elegant">🖤 Elegant Dark</option>
+                            <option value="rose">🌸 Rose & Cream</option>
+                            <option value="bold">⚡ Bold & Gold</option>
+                            <option value="festive">🎊 Festive Purple</option>
+                            <option value="minimal">⬜ Minimal Clean</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" id="f-title" class="form-control" placeholder="e.g., Summer Beauty Special" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subtitle</label>
+                    <input type="text" name="subtitle" id="f-subtitle" class="form-control" placeholder="e.g., Exclusive offer for this season">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" id="f-desc" class="form-control" placeholder="Describe the offer, course, or event in detail..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Highlight / Discount Badge</label>
+                        <input type="text" name="highlight" id="f-highlight" class="form-control" placeholder="e.g., 30% OFF, ₹5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Date / Duration</label>
+                        <input type="text" name="date_text" id="f-date" class="form-control" placeholder="e.g., June 15 - July 31">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🔗 Link URL (for QR Code)</label>
+                    <input type="url" name="link_url" id="f-link" class="form-control" placeholder="https://... — people will scan QR to visit this page">
+                    <small style="color: var(--gray-500); font-size: 0.8rem;">QR code will link to this URL. Leave blank to link to home page.</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" name="cta_text" class="form-control" value="Book Now" placeholder="e.g., Register Now">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="form-control" value="+91 98765 43210">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" name="address" class="form-control" value="JMD Makeover Studio, Main Road, City">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">🤖 Generate Template</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Preview & Output -->
+    <div>
+        {% if generated_html %}
+        <!-- Live Preview -->
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <h3>📱 Preview</h3>
+                <div class="d-flex gap-2">
+                    <form action="{{ url_for('preview_template') }}" method="POST" target="_blank">
+                        <input type="hidden" name="html_content" value="{{ generated_html|e }}">
+                        <button type="submit" class="btn btn-sm btn-outline">Open Full Page ↗</button>
+                    </form>
+                </div>
+            </div>
+            <div class="admin-panel-body" style="padding: 16px; background: #111;">
+                <iframe id="preview-frame" srcdoc="{{ generated_html|e }}" style="width: 100%; height: 650px; border: none; border-radius: 12px;"></iframe>
+            </div>
+        </div>
+
+        <!-- HTML Code -->
+        <div class="admin-panel mt-2">
+            <div class="admin-panel-header">
+                <h3>📋 HTML Code</h3>
+                <button class="btn btn-sm btn-primary" onclick="copyHTML()">Copy HTML</button>
+            </div>
+            <div class="admin-panel-body">
+                <textarea id="html-output" class="form-control" style="min-height: 200px; font-family: monospace; font-size: 0.8rem; background: var(--gray-100);" readonly>{{ generated_html }}</textarea>
+                <p style="margin-top: 12px; font-size: 0.85rem; color: var(--gray-500);">
+                    💡 Copy this HTML to share via email, WhatsApp, or host as a web page. The QR code inside will let people scan and visit the detail page directly.
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <div class="admin-panel">
+            <div class="admin-panel-body" style="text-align: center; padding: 80px 40px;">
+                <div style="font-size: 4rem; margin-bottom: 16px;">🤖</div>
+                <h3 style="margin-bottom: 8px;">AI Template Generator</h3>
+                <p style="color: var(--gray-500); max-width: 320px; margin: 0 auto;">Fill in the details on the left and click Generate to create a beautiful promotional template with a QR code.</p>
+                <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                    <span class="badge badge-approved">Offers</span>
+                    <span class="badge badge-pending">Courses</span>
+                    <span class="badge badge-completed">Events</span>
+                    <span class="badge badge-rescheduled">Announcements</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+@media (max-width: 992px) {
+    .admin-content > div:first-child {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function quickFill(val) {
+    if (!val) return;
+    const opt = document.querySelector('#quick-fill option[value="' + val + '"]');
+    if (!opt) return;
+    document.getElementById('f-title').value = opt.dataset.title || '';
+    document.getElementById('f-desc').value = opt.dataset.desc || '';
+    document.getElementById('f-highlight').value = opt.dataset.highlight || '';
+    document.getElementById('f-date').value = opt.dataset.date || '';
+    document.getElementById('f-link').value = opt.dataset.link || '';
+    const typeSelect = document.getElementById('template_type');
+    const type = opt.dataset.type || 'offer';
+    for (let i = 0; i < typeSelect.options.length; i++) {
+        if (typeSelect.options[i].value === type) {
+            typeSelect.selectedIndex = i;
+            break;
+        }
+    }
+}
+
+function copyHTML() {
+    const textarea = document.getElementById('html-output');
+    textarea.select();
+    document.execCommand('copy');
+    const btn = event.target;
+    btn.textContent = '✓ Copied!';
+    setTimeout(function() { btn.textContent = 'Copy HTML'; }, 2000);
+}
+</script>
+{% endblock %}

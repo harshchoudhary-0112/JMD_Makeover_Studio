@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Services - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Our Services</h1>
+        <p>Premium beauty and makeover services tailored for every occasion</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if services %}
+        <div class="card-grid">
+            {% for service in services %}
+            <div class="card">
+                <div class="card-image">
+                    {% if service.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + service.image) }}" alt="{{ service.name }}">
+                    {% else %}
+                    <span class="placeholder-icon">💄</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3>{{ service.name }}</h3>
+                    <p>{{ service.description }}</p>
+                    <div class="card-meta">
+                        <span class="price">₹{{ "%.0f"|format(service.price) }}</span>
+                        <span>🕐 {{ service.duration }}</span>
+                    </div>
+                    <a href="{{ url_for('book_appointment') }}" class="btn btn-primary btn-sm">Book Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">💄</div>
+            <p>Services will be available soon. Stay tuned!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

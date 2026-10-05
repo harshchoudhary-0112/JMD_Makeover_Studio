@@ -1,0 +1,178 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Events - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Manage Events</h1>
+    <button class="btn btn-primary btn-sm" data-modal="add-event-modal">+ Add Event</button>
+</div>
+
+{% if events %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Date & Time</th>
+                <th>Venue</th>
+                <th>Fees</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>
+                    {% if event.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + event.image) }}" alt="{{ event.title }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                    <div style="width:50px;height:50px;background:var(--soft-pink);border-radius:8px;display:flex;align-items:center;justify-content:center;">✨</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ event.title }}</strong>
+                    <br><small style="color:var(--gray-500);">{{ event.description[:50] }}{% if event.description and event.description|length > 50 %}...{% endif %}</small>
+                </td>
+                <td>{{ event.event_date }}<br><small>{{ event.event_time }}</small></td>
+                <td>{{ event.venue }}</td>
+                <td>{% if event.fees > 0 %}₹{{ "%.0f"|format(event.fees) }}{% else %}<span style="color:var(--success);">FREE</span>{% endif %}</td>
+                <td>
+                    <span class="badge {% if event.is_active %}badge-approved{% else %}badge-rejected{% endif %}">
+                        {{ 'Active' if event.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" data-modal="edit-event-{{ event.id }}">Edit</button>
+                        <form action="{{ url_for('manage_events') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="event_id" value="{{ event.id }}">
+                            <button type="submit" class="btn btn-warning btn-sm">{{ 'Deactivate' if event.is_active else 'Activate' }}</button>
+                        </form>
+                        <form action="{{ url_for('manage_events') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="event_id" value="{{ event.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm btn-delete-confirm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modals -->
+{% for event in events %}
+<div class="modal-backdrop" id="edit-event-{{ event.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Event</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_events') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="event_id" value="{{ event.id }}">
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" name="title" class="form-control" value="{{ event.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control">{{ event.description }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="event_date" class="form-control" value="{{ event.event_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="text" name="event_time" class="form-control" value="{{ event.event_time }}" placeholder="10:00 AM">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" name="venue" class="form-control" value="{{ event.venue }}">
+                </div>
+                <div class="form-group">
+                    <label>Entry Fee (₹) — 0 for free events</label>
+                    <input type="number" name="fees" class="form-control" value="{{ event.fees }}" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Update Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">✨</div>
+    <p>No events yet. Create your first event!</p>
+</div>
+{% endif %}
+
+<!-- Add Event Modal -->
+<div class="modal-backdrop" id="add-event-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Event</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_events') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g., Bridal Makeup Workshop" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" placeholder="Describe the event..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="event_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="text" name="event_time" class="form-control" placeholder="e.g., 10:00 AM">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Venue</label>
+                    <input type="text" name="venue" class="form-control" placeholder="e.g., JMD Studio, Main Hall">
+                </div>
+                <div class="form-group">
+                    <label>Entry Fee (₹) — Enter 0 for free events</label>
+                    <input type="number" name="fees" class="form-control" placeholder="0" step="0.01" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Add Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

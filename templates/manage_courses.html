@@ -1,0 +1,160 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Courses - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Manage Courses</h1>
+    <button class="btn btn-primary btn-sm" data-modal="add-course-modal">+ Add Course</button>
+</div>
+
+{% if courses %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Duration</th>
+                <th>Fees</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.id }}</td>
+                <td>
+                    {% if course.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + course.image) }}" alt="{{ course.title }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                    <div style="width:50px;height:50px;background:var(--soft-pink);border-radius:8px;display:flex;align-items:center;justify-content:center;">🎓</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ course.title }}</strong>
+                    <br><small style="color:var(--gray-500);">{{ course.description[:50] }}{% if course.description and course.description|length > 50 %}...{% endif %}</small>
+                </td>
+                <td>{{ course.duration }}</td>
+                <td>₹{{ "%.0f"|format(course.fees) }}</td>
+                <td>
+                    <span class="badge {% if course.is_active %}badge-approved{% else %}badge-rejected{% endif %}">
+                        {{ 'Active' if course.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" data-modal="edit-course-{{ course.id }}">Edit</button>
+                        <form action="{{ url_for('manage_courses') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                            <button type="submit" class="btn btn-warning btn-sm">{{ 'Deactivate' if course.is_active else 'Activate' }}</button>
+                        </form>
+                        <form action="{{ url_for('manage_courses') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm btn-delete-confirm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modals -->
+{% for course in courses %}
+<div class="modal-backdrop" id="edit-course-{{ course.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Course</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_courses') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <div class="form-group">
+                    <label>Course Title</label>
+                    <input type="text" name="title" class="form-control" value="{{ course.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control">{{ course.description }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" name="duration" class="form-control" value="{{ course.duration }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Fees (₹)</label>
+                        <input type="number" name="fees" class="form-control" value="{{ course.fees }}" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Update Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">🎓</div>
+    <p>No courses yet. Add your first course!</p>
+</div>
+{% endif %}
+
+<!-- Add Course Modal -->
+<div class="modal-backdrop" id="add-course-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Course</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_courses') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Course Title *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g., Professional Makeup Artistry" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" placeholder="Describe the course..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" name="duration" class="form-control" placeholder="e.g., 3 Months">
+                    </div>
+                    <div class="form-group">
+                        <label>Fees (₹)</label>
+                        <input type="number" name="fees" class="form-control" placeholder="45000" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Add Course</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

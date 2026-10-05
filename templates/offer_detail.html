@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}{{ offer.title }} - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>{{ offer.title }}</h1>
+        <p>Special Offer from JMD Makeover Studio & Academy</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="offer-detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+
+            <!-- Offer Image -->
+            <div class="card" style="overflow: hidden;">
+                <div class="card-image" style="height: 360px;">
+                    {% if offer.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + offer.image) }}" alt="{{ offer.title }}" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, var(--soft-pink), var(--cream-dark));">
+                        <span style="font-size: 5rem;">🎉</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Offer Details -->
+            <div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <!-- Discount Banner -->
+                    <div style="background: linear-gradient(135deg, var(--rose-gold), var(--rose-gold-dark)); padding: 24px 32px; text-align: center;">
+                        <span style="font-size: 2rem; font-weight: 700; color: var(--white); font-family: var(--font-heading);">{{ offer.discount }}</span>
+                        <p style="color: rgba(255,255,255,0.85); margin: 4px 0 0; font-size: 0.9rem;">Limited Time Offer</p>
+                    </div>
+
+                    <div class="card-body" style="padding: 32px;">
+                        <h2 style="margin-bottom: 16px; font-size: 1.75rem;">{{ offer.title }}</h2>
+
+                        <p style="font-size: 1.05rem; line-height: 1.8; color: var(--gray-700); margin-bottom: 24px;">{{ offer.description }}</p>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--cream); border-radius: var(--radius-sm);">
+                                <span style="font-size: 1.2rem;">📅</span>
+                                <div>
+                                    <strong style="font-size: 0.8rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px;">Start Date</strong>
+                                    <p style="margin: 0; font-weight: 600; color: var(--black);">{{ offer.start_date }}</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--cream); border-radius: var(--radius-sm);">
+                                <span style="font-size: 1.2rem;">📅</span>
+                                <div>
+                                    <strong style="font-size: 0.8rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px;">End Date</strong>
+                                    <p style="margin: 0; font-weight: 600; color: var(--black);">{{ offer.end_date }}</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--cream); border-radius: var(--radius-sm);">
+                                <span style="font-size: 1.2rem;">👥</span>
+                                <div>
+                                    <strong style="font-size: 0.8rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px;">Registrations</strong>
+                                    <p style="margin: 0; font-weight: 600; color: var(--black);">{{ registrations }} people registered</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if current_user %}
+                        <form action="{{ url_for('register_offer', id=offer.id) }}" method="POST">
+                            <button type="submit" class="btn btn-gold btn-block" style="padding: 16px;">🎉 Register for This Offer</button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-gold btn-block" style="padding: 16px;">Login to Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <a href="{{ url_for('offers') }}" style="color: var(--gray-500); font-size: 0.9rem;">← Back to All Offers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@media (max-width: 768px) {
+    .offer-detail-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}

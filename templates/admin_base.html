@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - JMD Makeover Studio{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="admin-layout">
+        <!-- Sidebar Toggle (Mobile) -->
+        <button class="admin-sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h3>JMD <span>Studio</span></h3>
+                <p>Admin Panel</p>
+            </div>
+            <ul class="admin-nav">
+                <li>
+                    <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_appointments') }}" class="{% if request.endpoint in ['manage_appointments'] %}active{% endif %}">
+                        <span class="nav-icon">📅</span> Appointments
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('schedule_appointment') }}" class="{% if request.endpoint == 'schedule_appointment' %}active{% endif %}">
+                        <span class="nav-icon">📝</span> Schedule Appointment
+                    </a>
+                </li>
+                <div class="admin-nav-divider"></div>
+                <li>
+                    <a href="{{ url_for('manage_services') }}" class="{% if request.endpoint == 'manage_services' %}active{% endif %}">
+                        <span class="nav-icon">💄</span> Services
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_courses') }}" class="{% if request.endpoint == 'manage_courses' %}active{% endif %}">
+                        <span class="nav-icon">🎓</span> Courses
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_offers') }}" class="{% if request.endpoint == 'manage_offers' %}active{% endif %}">
+                        <span class="nav-icon">🎉</span> Offers
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_events') }}" class="{% if request.endpoint == 'manage_events' %}active{% endif %}">
+                        <span class="nav-icon">✨</span> Events
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('course_registrations') }}" class="{% if request.endpoint == 'course_registrations' %}active{% endif %}">
+                        <span class="nav-icon">📋</span> Registrations
+                    </a>
+                </li>
+                <div class="admin-nav-divider"></div>
+                <li>
+                    <a href="{{ url_for('manage_gallery') }}" class="{% if request.endpoint == 'manage_gallery' %}active{% endif %}">
+                        <span class="nav-icon">📸</span> Gallery
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_users') }}" class="{% if request.endpoint == 'manage_users' %}active{% endif %}">
+                        <span class="nav-icon">👥</span> Users
+                    </a>
+                </li>
+                <div class="admin-nav-divider"></div>
+                <li>
+                    <a href="{{ url_for('generate_template') }}" class="{% if request.endpoint == 'generate_template' %}active{% endif %}">
+                        <span class="nav-icon">🤖</span> AI Template Generator
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('manage_settings') }}" class="{% if request.endpoint == 'manage_settings' %}active{% endif %}">
+                        <span class="nav-icon">⚙️</span> Site Settings
+                    </a>
+                </li>
+                <div class="admin-nav-divider"></div>
+                <li>
+                    <a href="{{ url_for('home') }}">
+                        <span class="nav-icon">🌐</span> View Website
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_logout') }}" style="color: var(--error);">
+                        <span class="nav-icon">🚪</span> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

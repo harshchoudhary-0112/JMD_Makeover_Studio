@@ -1,0 +1,160 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Services - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Manage Services</h1>
+    <button class="btn btn-primary btn-sm" data-modal="add-service-modal">+ Add Service</button>
+</div>
+
+{% if services %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>
+                    {% if service.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + service.image) }}" alt="{{ service.name }}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">
+                    {% else %}
+                    <div style="width:50px;height:50px;background:var(--soft-pink);border-radius:8px;display:flex;align-items:center;justify-content:center;">💄</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ service.name }}</strong>
+                    <br><small style="color:var(--gray-500);">{{ service.description[:50] }}{% if service.description and service.description|length > 50 %}...{% endif %}</small>
+                </td>
+                <td>₹{{ "%.0f"|format(service.price) }}</td>
+                <td>{{ service.duration }}</td>
+                <td>
+                    <span class="badge {% if service.is_active %}badge-approved{% else %}badge-rejected{% endif %}">
+                        {{ 'Active' if service.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" data-modal="edit-service-{{ service.id }}">Edit</button>
+                        <form action="{{ url_for('manage_services') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="service_id" value="{{ service.id }}">
+                            <button type="submit" class="btn btn-warning btn-sm">{{ 'Deactivate' if service.is_active else 'Activate' }}</button>
+                        </form>
+                        <form action="{{ url_for('manage_services') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="service_id" value="{{ service.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm btn-delete-confirm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modals -->
+{% for service in services %}
+<div class="modal-backdrop" id="edit-service-{{ service.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Service</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_services') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+                <div class="form-group">
+                    <label>Service Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ service.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control">{{ service.description }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" name="price" class="form-control" value="{{ service.price }}" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" name="duration" class="form-control" value="{{ service.duration }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional - leave empty to keep current)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Update Service</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">💄</div>
+    <p>No services yet. Add your first service!</p>
+</div>
+{% endif %}
+
+<!-- Add Service Modal -->
+<div class="modal-backdrop" id="add-service-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Service</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_services') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Service Name *</label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g., Bridal Makeup" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" placeholder="Describe the service..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price (₹)</label>
+                        <input type="number" name="price" class="form-control" placeholder="5000" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" name="duration" class="form-control" placeholder="e.g., 1 hour">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Add Service</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

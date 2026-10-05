@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Book Appointment - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Book Appointment</h1>
+        <p>Select a service, pick your preferred date and time</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="form-container" style="max-width: 560px;">
+            <h2>📅 Schedule Your Visit</h2>
+            <p class="form-subtitle">Fill in the details and we'll confirm your appointment</p>
+
+            <form method="POST" action="{{ url_for('book_appointment') }}">
+                <div class="form-group">
+                    <label for="service_id">Select Service</label>
+                    <select id="service_id" name="service_id" class="form-control" required>
+                        <option value="">— Choose a service —</option>
+                        {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.name }} — ₹{{ "%.0f"|format(service.price) }} ({{ service.duration }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appointment_date">Preferred Date</label>
+                        <input type="date" id="appointment_date" name="appointment_date" class="form-control" min="{{ today }}" data-min-today="true" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointment_time">Preferred Time</label>
+                        <input type="time" id="appointment_time" name="appointment_time" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="message">Special Requirements (Optional)</label>
+                    <textarea id="message" name="message" class="form-control" placeholder="Any special requests or notes for us..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Book Appointment</button>
+            </form>
+
+            <div class="form-footer">
+                <a href="{{ url_for('my_appointments') }}">← View My Appointments</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

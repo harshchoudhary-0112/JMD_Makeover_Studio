@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Offers - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Special Offers</h1>
+        <p>Exclusive deals and seasonal discounts you don't want to miss</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if offers %}
+        <div class="card-grid card-grid-3">
+            {% for offer in offers %}
+            <div class="card">
+                <div class="card-badge card-badge-gold">{{ offer.discount }}</div>
+                <div class="card-image">
+                    {% if offer.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + offer.image) }}" alt="{{ offer.title }}">
+                    {% else %}
+                    <span class="placeholder-icon">🎉</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3><a href="{{ url_for('offer_detail', id=offer.id) }}" style="color: var(--black);">{{ offer.title }}</a></h3>
+                    <p>{{ offer.description }}</p>
+                    <div class="card-meta">
+                        <span>📅 Valid: {{ offer.start_date }} — {{ offer.end_date }}</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('offer_detail', id=offer.id) }}" class="btn btn-outline btn-sm">View Details</a>
+                        {% if current_user %}
+                        <form action="{{ url_for('register_offer', id=offer.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-gold btn-sm">Register Now</button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-gold btn-sm">Login to Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <p>No active offers right now. Check back soon for exciting deals!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

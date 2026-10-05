@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Gallery - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Our Gallery</h1>
+        <p>Explore our stunning transformations and studio moments</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        {% if images %}
+        <div class="gallery-grid">
+            {% for image in images %}
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='uploads/' + image.image) }}" alt="{{ image.caption or 'Gallery image' }}">
+                <div class="gallery-overlay">
+                    <p>{{ image.caption or '' }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📸</div>
+            <p>Gallery images coming soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="Gallery preview">
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - JMD Makeover Studio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>Welcome, {{ session.user_name }}!</h1>
+        <p>Manage your appointments, courses, and more</p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <!-- Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number">{{ stats.total_appointments }}</div>
+                <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-number">{{ stats.pending }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">{{ stats.approved }}</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-number">{{ stats.completed }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="d-flex gap-2 flex-wrap mb-4">
+            <a href="{{ url_for('book_appointment') }}" class="btn btn-primary">📅 Book Appointment</a>
+            <a href="{{ url_for('my_appointments') }}" class="btn btn-outline">View All Appointments</a>
+            <a href="{{ url_for('profile') }}" class="btn btn-outline">Edit Profile</a>
+        </div>
+
+        <!-- Recent Appointments -->
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <h3>Recent Appointments</h3>
+                <a href="{{ url_for('my_appointments') }}" class="btn btn-sm btn-outline">View All</a>
+            </div>
+            <div class="admin-panel-body">
+                {% if appointments %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appt in appointments %}
+                            <tr>
+                                <td>{{ appt.service_name or 'General' }}</td>
+                                <td>{{ appt.appointment_date }}</td>
+                                <td>{{ appt.appointment_time }}</td>
+                                <td>
+                                    <span class="badge badge-{{ appt.status|lower }}">{{ appt.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <p>No appointments yet. <a href="{{ url_for('book_appointment') }}">Book your first appointment!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        {% if notifications %}
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <h3>🔔 Recent Notifications</h3>
+            </div>
+            <div class="admin-panel-body" style="padding: 0;">
+                <ul class="notification-list">
+                    {% for notif in notifications %}
+                    <li class="notification-item {% if not notif.is_read %}unread{% endif %}">
+                        <div class="notif-icon {{ notif.type or 'info' }}">
+                            {% if notif.type == 'success' %}✓{% elif notif.type == 'warning' %}⚠{% elif notif.type == 'error' %}✕{% else %}ℹ{% endif %}
+                        </div>
+                        <div class="notif-content">
+                            <h4>{{ notif.title }}</h4>
+                            <p>{{ notif.message }}</p>
+                            <span class="notif-time">{{ notif.created_at }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Course Registrations -->
+        {% if course_regs %}
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <h3>🎓 Course Registrations</h3>
+            </div>
+            <div class="admin-panel-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in course_regs %}
+                            <tr>
+                                <td>{{ reg.course_title }}</td>
+                                <td><span class="badge badge-{{ reg.status|lower }}">{{ reg.status }}</span></td>
+                                <td>{{ reg.created_at }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Offer Registrations -->
+        {% if offer_regs %}
+        <div class="admin-panel">
+            <div class="admin-panel-header">
+                <h3>🎉 Offer Registrations</h3>
+            </div>
+            <div class="admin-panel-body">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Offer</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in offer_regs %}
+                            <tr>
+                                <td>{{ reg.offer_title }}</td>
+                                <td><span class="badge badge-{{ reg.status|lower }}">{{ reg.status }}</span></td>
+                                <td>{{ reg.created_at }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Offers - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Manage Offers</h1>
+    <button class="btn btn-primary btn-sm" data-modal="add-offer-modal">+ Add Offer</button>
+</div>
+
+{% if offers %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Discount</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for offer in offers %}
+            <tr>
+                <td>{{ offer.id }}</td>
+                <td>
+                    <strong>{{ offer.title }}</strong>
+                    <br><small style="color:var(--gray-500);">{{ offer.description[:50] }}{% if offer.description and offer.description|length > 50 %}...{% endif %}</small>
+                </td>
+                <td><span class="badge card-badge-gold" style="position:static;">{{ offer.discount }}</span></td>
+                <td>{{ offer.start_date }}</td>
+                <td>{{ offer.end_date }}</td>
+                <td>
+                    <span class="badge {% if offer.is_active %}badge-approved{% else %}badge-rejected{% endif %}">
+                        {{ 'Active' if offer.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-outline btn-sm" data-modal="edit-offer-{{ offer.id }}">Edit</button>
+                        <form action="{{ url_for('manage_offers') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="toggle">
+                            <input type="hidden" name="offer_id" value="{{ offer.id }}">
+                            <button type="submit" class="btn btn-warning btn-sm">{{ 'Deactivate' if offer.is_active else 'Activate' }}</button>
+                        </form>
+                        <form action="{{ url_for('manage_offers') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="offer_id" value="{{ offer.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm btn-delete-confirm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modals -->
+{% for offer in offers %}
+<div class="modal-backdrop" id="edit-offer-{{ offer.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Offer</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_offers') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="offer_id" value="{{ offer.id }}">
+                <div class="form-group">
+                    <label>Offer Title</label>
+                    <input type="text" name="title" class="form-control" value="{{ offer.title }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control">{{ offer.description }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Discount Label</label>
+                    <input type="text" name="discount" class="form-control" value="{{ offer.discount }}" placeholder="e.g., 20% OFF">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ offer.start_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ offer.end_date }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Update Offer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">🎉</div>
+    <p>No offers yet. Create your first offer!</p>
+</div>
+{% endif %}
+
+<!-- Add Offer Modal -->
+<div class="modal-backdrop" id="add-offer-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add New Offer</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('manage_offers') }}" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label>Offer Title *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g., Summer Special" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" placeholder="Describe the offer..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Discount Label</label>
+                    <input type="text" name="discount" class="form-control" placeholder="e.g., 20% OFF, Free Consultation">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                    <div class="image-preview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Add Offer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

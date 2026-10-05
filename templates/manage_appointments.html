@@ -1,0 +1,142 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Appointments - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Manage Appointments</h1>
+    <a href="{{ url_for('schedule_appointment') }}" class="btn btn-primary btn-sm">+ Schedule New</a>
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <a href="{{ url_for('manage_appointments', status='all') }}" class="filter-tab {% if status_filter == 'all' %}active{% endif %}">All</a>
+    <a href="{{ url_for('manage_appointments', status='Pending') }}" class="filter-tab {% if status_filter == 'Pending' %}active{% endif %}">Pending</a>
+    <a href="{{ url_for('manage_appointments', status='Approved') }}" class="filter-tab {% if status_filter == 'Approved' %}active{% endif %}">Approved</a>
+    <a href="{{ url_for('manage_appointments', status='Rescheduled') }}" class="filter-tab {% if status_filter == 'Rescheduled' %}active{% endif %}">Rescheduled</a>
+    <a href="{{ url_for('manage_appointments', status='Completed') }}" class="filter-tab {% if status_filter == 'Completed' %}active{% endif %}">Completed</a>
+    <a href="{{ url_for('manage_appointments', status='Rejected') }}" class="filter-tab {% if status_filter == 'Rejected' %}active{% endif %}">Rejected</a>
+    <a href="{{ url_for('manage_appointments', status='Cancelled') }}" class="filter-tab {% if status_filter == 'Cancelled' %}active{% endif %}">Cancelled</a>
+</div>
+
+{% if appointments %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr>
+                <td>{{ appt.id }}</td>
+                <td>
+                    <strong>{{ appt.name }}</strong>
+                    {% if appt.email %}<br><small style="color: var(--gray-500);">{{ appt.email }}</small>{% endif %}
+                </td>
+                <td>{{ appt.service_name or '—' }}</td>
+                <td>{{ appt.appointment_date }}</td>
+                <td>{{ appt.appointment_time }}</td>
+                <td>{{ appt.phone }}</td>
+                <td><span class="badge badge-{{ appt.status|lower }}">{{ appt.status }}</span></td>
+                <td>
+                    <div class="actions">
+                        {% if appt.status == 'Pending' %}
+                        <form action="{{ url_for('approve_appointment', id=appt.id) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="admin_note" value="">
+                            <button type="submit" class="btn btn-success btn-sm">✓ Approve</button>
+                        </form>
+                        <button class="btn btn-danger btn-sm" data-modal="reject-modal-{{ appt.id }}">✕ Reject</button>
+                        <button class="btn btn-warning btn-sm" data-modal="reschedule-modal-{{ appt.id }}">↻ Reschedule</button>
+                        {% elif appt.status in ['Approved', 'Rescheduled'] %}
+                        <form action="{{ url_for('complete_appointment', id=appt.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm">✓ Complete</button>
+                        </form>
+                        <button class="btn btn-warning btn-sm" data-modal="reschedule-modal-{{ appt.id }}">↻ Reschedule</button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Reject Modals -->
+{% for appt in appointments %}
+{% if appt.status == 'Pending' %}
+<div class="modal-backdrop" id="reject-modal-{{ appt.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Reject Appointment #{{ appt.id }}</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('reject_appointment', id=appt.id) }}" method="POST">
+            <div class="modal-body">
+                <p>Rejecting appointment for <strong>{{ appt.name }}</strong> on {{ appt.appointment_date }}.</p>
+                <div class="form-group">
+                    <label for="admin_note">Reason / Note (Optional)</label>
+                    <textarea name="admin_note" class="form-control" placeholder="Provide a reason for rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-danger btn-sm">Reject Appointment</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Reschedule Modals -->
+{% for appt in appointments %}
+{% if appt.status in ['Pending', 'Approved', 'Rescheduled'] %}
+<div class="modal-backdrop" id="reschedule-modal-{{ appt.id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Reschedule Appointment #{{ appt.id }}</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form action="{{ url_for('reschedule_appointment', id=appt.id) }}" method="POST">
+            <div class="modal-body">
+                <p>Rescheduling for <strong>{{ appt.name }}</strong>. Current: {{ appt.appointment_date }} at {{ appt.appointment_time }}</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>New Date</label>
+                        <input type="date" name="new_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Time</label>
+                        <input type="time" name="new_time" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Note (Optional)</label>
+                    <textarea name="admin_note" class="form-control" placeholder="Reason for rescheduling..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline btn-sm modal-cancel">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Reschedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">📅</div>
+    <p>No appointments found{% if status_filter != 'all' %} with status "{{ status_filter }}"{% endif %}.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'admin_base.html' %}
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h1>Registered Users</h1>
+</div>
+
+{% if users %}
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registered</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td><strong>{{ user.name }}</strong></td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
+                <td>{{ user.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state bg-white rounded shadow p-4">
+    <div class="empty-icon">👥</div>
+    <p>No registered users yet.</p>
+</div>
+{% endif %}
+{% endblock %}
